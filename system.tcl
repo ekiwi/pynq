@@ -166,11 +166,10 @@ proc create_root_design { parentCell } {
   # Create instance: axi_dma_0, and set properties
   set axi_dma_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_dma:7.1 axi_dma_0 ]
   set_property -dict [ list \
-CONFIG.c_include_mm2s {1} \
 CONFIG.c_include_sg {0} \
 CONFIG.c_m_axi_mm2s_data_width {64} \
 CONFIG.c_m_axi_s2mm_data_width {64} \
-CONFIG.c_m_axis_mm2s_tdata_width {16} \
+CONFIG.c_m_axis_mm2s_tdata_width {64} \
 CONFIG.c_mm2s_burst_size {64} \
 CONFIG.c_s2mm_burst_size {64} \
 CONFIG.c_sg_include_stscntrl_strm {0} \
@@ -186,6 +185,9 @@ CONFIG.NUM_SI {2} \
 
   # Create instance: axis_data_fifo_0, and set properties
   set axis_data_fifo_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axis_data_fifo:1.1 axis_data_fifo_0 ]
+  set_property -dict [ list \
+CONFIG.TDATA_NUM_BYTES {8} \
+ ] $axis_data_fifo_0
 
   # Create instance: btns_gpio, and set properties
   set btns_gpio [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 btns_gpio ]
