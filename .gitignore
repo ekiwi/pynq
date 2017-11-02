@@ -2,7 +2,7 @@
 ekiwi/
 
 # bitstream
-ekiwi.bit
+*.bit
 
 # vivado
 *.jou
