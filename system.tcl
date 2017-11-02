@@ -158,7 +158,7 @@ proc create_root_design { parentCell } {
   set FIXED_IO [ create_bd_intf_port -mode Master -vlnv xilinx.com:display_processing_system7:fixedio_rtl:1.0 FIXED_IO ]
   set btns_4bits [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 btns_4bits ]
   set leds_4bits [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 leds_4bits ]
-  set rgbleds_6bits [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 rgbleds_6bits ]
+  set rgb_led [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 rgb_led ]
   set sws_2bits [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 sws_2bits ]
 
   # Create ports
@@ -193,6 +193,8 @@ CONFIG.NUM_SI {2} \
 CONFIG.C_ALL_INPUTS {1} \
 CONFIG.C_GPIO_WIDTH {4} \
 CONFIG.C_INTERRUPT_PRESENT {1} \
+CONFIG.GPIO_BOARD_INTERFACE {btns_4bits} \
+CONFIG.USE_BOARD_FLOW {true} \
  ] $btns_gpio
 
   # Create instance: processing_system7_0, and set properties
@@ -1070,6 +1072,8 @@ CONFIG.NUM_MI {5} \
   set_property -dict [ list \
 CONFIG.C_ALL_OUTPUTS {1} \
 CONFIG.C_GPIO_WIDTH {6} \
+CONFIG.GPIO_BOARD_INTERFACE {rgb_led} \
+CONFIG.USE_BOARD_FLOW {true} \
  ] $rgbleds_gpio
 
   # Create instance: rst_processing_system7_0_100M, and set properties
@@ -1084,6 +1088,9 @@ CONFIG.C_GPIO2_WIDTH {4} \
 CONFIG.C_GPIO_WIDTH {2} \
 CONFIG.C_INTERRUPT_PRESENT {1} \
 CONFIG.C_IS_DUAL {1} \
+CONFIG.GPIO2_BOARD_INTERFACE {leds_4bits} \
+CONFIG.GPIO_BOARD_INTERFACE {sws_2bits} \
+CONFIG.USE_BOARD_FLOW {true} \
  ] $swsleds_gpio
 
   # Create instance: system_interrupts, and set properties
@@ -1107,7 +1114,7 @@ CONFIG.C_IS_DUAL {1} \
   connect_bd_intf_net -intf_net processing_system7_0_axi_periph_M02_AXI [get_bd_intf_pins processing_system7_0_axi_periph/M02_AXI] [get_bd_intf_pins swsleds_gpio/S_AXI]
   connect_bd_intf_net -intf_net processing_system7_0_axi_periph_M03_AXI [get_bd_intf_pins processing_system7_0_axi_periph/M03_AXI] [get_bd_intf_pins system_interrupts/s_axi]
   connect_bd_intf_net -intf_net processing_system7_0_axi_periph_M04_AXI [get_bd_intf_pins axi_dma_0/S_AXI_LITE] [get_bd_intf_pins processing_system7_0_axi_periph/M04_AXI]
-  connect_bd_intf_net -intf_net rgbled_gpio_GPIO [get_bd_intf_ports rgbleds_6bits] [get_bd_intf_pins rgbleds_gpio/GPIO]
+  connect_bd_intf_net -intf_net rgbled_gpio_GPIO [get_bd_intf_ports rgb_led] [get_bd_intf_pins rgbleds_gpio/GPIO]
   connect_bd_intf_net -intf_net swsleds_gpio_GPIO [get_bd_intf_ports sws_2bits] [get_bd_intf_pins swsleds_gpio/GPIO]
   connect_bd_intf_net -intf_net swsleds_gpio_GPIO2 [get_bd_intf_ports leds_4bits] [get_bd_intf_pins swsleds_gpio/GPIO2]
 
