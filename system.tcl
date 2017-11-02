@@ -43,7 +43,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 
 set list_projs [get_projects -quiet]
 if { $list_projs eq "" } {
-   create_project project_1 myproj -part xc7z020clg400-1
+   create_project ekiwi ekiwi -part xc7z020clg400-1
 }
 
 
@@ -1187,4 +1187,12 @@ CONFIG.C_IS_DUAL {1} \
 
 create_root_design ""
 
+# Additional steps to get to bitstream
+# from https://github.com/Xilinx/PYNQ
+# Add top wrapper and xdc files
+add_files -norecurse ./vivado/top.v
+update_compile_order -fileset sources_1
+set_property top top [current_fileset]
+update_compile_order -fileset sources_1
+add_files -fileset constrs_1 -norecurse ./vivado/constraints/top.xdc
 
