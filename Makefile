@@ -4,3 +4,6 @@ clean:
 	rm -r ekiwi
 	rm vivado*
 	rm system.bit
+
+deploy: system.bit system.tcl
+	scp system.bit system.tcl  pynq:~
