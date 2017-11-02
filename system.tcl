@@ -44,6 +44,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 set list_projs [get_projects -quiet]
 if { $list_projs eq "" } {
    create_project ekiwi ekiwi -part xc7z020clg400-1
+   set_property BOARD_PART digilentinc.com:arty-z7-20:part0:1.0 [current_project]
 }
 
 
@@ -1145,13 +1146,11 @@ CONFIG.C_IS_DUAL {1} \
 create_root_design ""
 
 # Additional steps to get to bitstream
-# from https://github.com/Xilinx/PYNQ
-# Add top wrapper and xdc files
-add_files -norecurse ./vivado/top.v
+# from https://github.com/Xilinx/PYNQ and https://github.com/PeterOgden/overlay_tutorial
+# generate toplevel
+add_files -norecurse [make_wrapper -files [get_files *.bd] -top]
 update_compile_order -fileset sources_1
-set_property top top [current_fileset]
-update_compile_order -fileset sources_1
-add_files -fileset constrs_1 -norecurse ./vivado/constraints/top.xdc
+set_property top system_wrapper [current_fileset]
 
 # call implement
 launch_runs impl_1 -to_step write_bitstream -jobs 8
