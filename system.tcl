@@ -1097,6 +1097,9 @@ CONFIG.USE_BOARD_FLOW {true} \
 
   # Create instance: system_interrupts, and set properties
   set system_interrupts [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_intc:4.1 system_interrupts ]
+  set_property -dict [ list \
+CONFIG.C_IRQ_CONNECTION {1} \
+ ] $system_interrupts
 
   # Create instance: xlconcat_0, and set properties
   set xlconcat_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 xlconcat_0 ]
