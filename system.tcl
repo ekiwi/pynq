@@ -1190,3 +1190,9 @@ set_property top top [current_fileset]
 update_compile_order -fileset sources_1
 add_files -fileset constrs_1 -norecurse ./vivado/constraints/top.xdc
 
+# call implement
+launch_runs impl_1 -to_step write_bitstream -jobs 8
+wait_on_run impl_1
+
+# move and rename bitstream to final location
+file copy -force ./ekiwi/ekiwi.runs/impl_1/top.bit ekiwi.bit
