@@ -20,7 +20,7 @@ set script_folder [_tcl::get_script_folder]
 ################################################################
 # Check if script is running in correct Vivado version.
 ################################################################
-set scripts_vivado_version 2016.1
+set scripts_vivado_version 2017.2
 set current_vivado_version [version -short]
 
 if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
@@ -439,10 +439,10 @@ CONFIG.PCW_FCLK2_PERIPHERAL_DIVISOR1 {1} \
 CONFIG.PCW_FCLK3_PERIPHERAL_CLKSRC {IO PLL} \
 CONFIG.PCW_FCLK3_PERIPHERAL_DIVISOR0 {1} \
 CONFIG.PCW_FCLK3_PERIPHERAL_DIVISOR1 {1} \
-CONFIG.PCW_FCLK_CLK0_BUF {true} \
-CONFIG.PCW_FCLK_CLK1_BUF {false} \
-CONFIG.PCW_FCLK_CLK2_BUF {false} \
-CONFIG.PCW_FCLK_CLK3_BUF {false} \
+CONFIG.PCW_FCLK_CLK0_BUF {TRUE} \
+CONFIG.PCW_FCLK_CLK1_BUF {FALSE} \
+CONFIG.PCW_FCLK_CLK2_BUF {FALSE} \
+CONFIG.PCW_FCLK_CLK3_BUF {FALSE} \
 CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {100} \
 CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {142} \
 CONFIG.PCW_FPGA2_PERIPHERAL_FREQMHZ {200} \
@@ -459,6 +459,8 @@ CONFIG.PCW_FTM_CTI_OUT0 {<Select>} \
 CONFIG.PCW_FTM_CTI_OUT1 {<Select>} \
 CONFIG.PCW_FTM_CTI_OUT2 {<Select>} \
 CONFIG.PCW_FTM_CTI_OUT3 {<Select>} \
+CONFIG.PCW_GP0_EN_MODIFIABLE_TXN {0} \
+CONFIG.PCW_GP1_EN_MODIFIABLE_TXN {0} \
 CONFIG.PCW_GPIO_BASEADDR {0xE000A000} \
 CONFIG.PCW_GPIO_EMIO_GPIO_ENABLE {1} \
 CONFIG.PCW_GPIO_EMIO_GPIO_IO {7} \
@@ -714,12 +716,10 @@ CONFIG.PCW_MIO_PRIMITIVE {54} \
 CONFIG.PCW_MIO_TREE_PERIPHERALS {unassigned#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#unassigned#Quad SPI Flash#unassigned#unassigned#unassigned#unassigned#unassigned#UART 0#UART 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#SD 0#SD 0#SD 0#SD 0#SD 0#SD 0#unassigned#SD 0#unassigned#unassigned#unassigned#unassigned#Enet 0#Enet 0} \
 CONFIG.PCW_MIO_TREE_SIGNALS {unassigned#qspi0_ss_b#qspi0_io[0]#qspi0_io[1]#qspi0_io[2]#qspi0_io[3]#qspi0_sclk#unassigned#qspi_fbclk#unassigned#unassigned#unassigned#unassigned#unassigned#rx#tx#tx_clk#txd[0]#txd[1]#txd[2]#txd[3]#tx_ctl#rx_clk#rxd[0]#rxd[1]#rxd[2]#rxd[3]#rx_ctl#data[4]#dir#stp#nxt#data[0]#data[1]#data[2]#data[3]#clk#data[5]#data[6]#data[7]#clk#cmd#data[0]#data[1]#data[2]#data[3]#unassigned#cd#unassigned#unassigned#unassigned#unassigned#mdc#mdio} \
 CONFIG.PCW_M_AXI_GP0_ENABLE_STATIC_REMAP {0} \
-CONFIG.PCW_M_AXI_GP0_FREQMHZ {10} \
 CONFIG.PCW_M_AXI_GP0_ID_WIDTH {12} \
 CONFIG.PCW_M_AXI_GP0_SUPPORT_NARROW_BURST {0} \
 CONFIG.PCW_M_AXI_GP0_THREAD_ID_WIDTH {12} \
 CONFIG.PCW_M_AXI_GP1_ENABLE_STATIC_REMAP {0} \
-CONFIG.PCW_M_AXI_GP1_FREQMHZ {10} \
 CONFIG.PCW_M_AXI_GP1_ID_WIDTH {12} \
 CONFIG.PCW_M_AXI_GP1_SUPPORT_NARROW_BURST {0} \
 CONFIG.PCW_M_AXI_GP1_THREAD_ID_WIDTH {12} \
@@ -898,23 +898,16 @@ CONFIG.PCW_SPI_PERIPHERAL_FREQMHZ {166.666666} \
 CONFIG.PCW_SPI_PERIPHERAL_VALID {0} \
 CONFIG.PCW_S_AXI_ACP_ARUSER_VAL {31} \
 CONFIG.PCW_S_AXI_ACP_AWUSER_VAL {31} \
-CONFIG.PCW_S_AXI_ACP_FREQMHZ {10} \
 CONFIG.PCW_S_AXI_ACP_ID_WIDTH {3} \
-CONFIG.PCW_S_AXI_GP0_FREQMHZ {10} \
 CONFIG.PCW_S_AXI_GP0_ID_WIDTH {6} \
-CONFIG.PCW_S_AXI_GP1_FREQMHZ {10} \
 CONFIG.PCW_S_AXI_GP1_ID_WIDTH {6} \
 CONFIG.PCW_S_AXI_HP0_DATA_WIDTH {64} \
-CONFIG.PCW_S_AXI_HP0_FREQMHZ {10} \
 CONFIG.PCW_S_AXI_HP0_ID_WIDTH {6} \
 CONFIG.PCW_S_AXI_HP1_DATA_WIDTH {64} \
-CONFIG.PCW_S_AXI_HP1_FREQMHZ {10} \
 CONFIG.PCW_S_AXI_HP1_ID_WIDTH {6} \
 CONFIG.PCW_S_AXI_HP2_DATA_WIDTH {64} \
-CONFIG.PCW_S_AXI_HP2_FREQMHZ {10} \
 CONFIG.PCW_S_AXI_HP2_ID_WIDTH {6} \
 CONFIG.PCW_S_AXI_HP3_DATA_WIDTH {64} \
-CONFIG.PCW_S_AXI_HP3_FREQMHZ {10} \
 CONFIG.PCW_S_AXI_HP3_ID_WIDTH {6} \
 CONFIG.PCW_TPIU_PERIPHERAL_CLKSRC {External} \
 CONFIG.PCW_TPIU_PERIPHERAL_DIVISOR0 {1} \
@@ -1177,100 +1170,8 @@ CONFIG.C_IS_DUAL {1} \
   create_bd_addr_seg -range 0x00010000 -offset 0x41200000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs btns_gpio/S_AXI/Reg] SEG_btns_gpio_Reg
   create_bd_addr_seg -range 0x00010000 -offset 0x41210000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs rgbleds_gpio/S_AXI/Reg] SEG_rgbleds_gpio_Reg
   create_bd_addr_seg -range 0x00010000 -offset 0x41220000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs swsleds_gpio/S_AXI/Reg] SEG_swsleds_gpio_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x41800000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs system_interrupts/s_axi/Reg] SEG_system_interrupts_Reg
+  create_bd_addr_seg -range 0x00010000 -offset 0x41800000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs system_interrupts/S_AXI/Reg] SEG_system_interrupts_Reg
 
-  # Perform GUI Layout
-  regenerate_bd_layout -layout_string {
-   guistr: "# # String gsaved with Nlview 6.5.12  2016-01-29 bk=1.3547 VDI=39 GEI=35 GUI=JA:1.6
-#  -string -flagsOSRD
-preplace port btns_4bits -pg 1 -y 500 -defaultsOSRD
-preplace port DDR -pg 1 -y 240 -defaultsOSRD
-preplace port shield2sw_scl_i_in -pg 1 -y 360 -defaultsOSRD
-preplace port sw2shield_scl_o_out -pg 1 -y 400 -defaultsOSRD
-preplace port hdmi_out_ddc -pg 1 -y 100 -defaultsOSRD
-preplace port Vp_Vn -pg 1 -y 200 -defaultsOSRD
-preplace port shield2sw_sda_i_in -pg 1 -y 380 -defaultsOSRD
-preplace port spi_sw_shield -pg 1 -y 320 -defaultsOSRD
-preplace port sw2shield_sda_o_out -pg 1 -y 440 -defaultsOSRD
-preplace port Vaux0 -pg 1 -y 20 -defaultsOSRD
-preplace port Vaux1 -pg 1 -y 40 -defaultsOSRD
-preplace port leds_4bits -pg 1 -y 770 -defaultsOSRD
-preplace port sw2shield_scl_t_out -pg 1 -y 420 -defaultsOSRD
-preplace port ck_gpio -pg 1 -y 20 -defaultsOSRD
-preplace port hdmi_out -pg 1 -y 80 -defaultsOSRD
-preplace port Vaux12 -pg 1 -y 140 -defaultsOSRD
-preplace port Vaux5 -pg 1 -y 60 -defaultsOSRD
-preplace port FIXED_IO -pg 1 -y 260 -defaultsOSRD
-preplace port sws_2bits -pg 1 -y 750 -defaultsOSRD
-preplace port hdmi_in -pg 1 -y 220 -defaultsOSRD
-preplace port Vaux13 -pg 1 -y 160 -defaultsOSRD
-preplace port Vaux6 -pg 1 -y 80 -defaultsOSRD
-preplace port rgbleds_6bits -pg 1 -y 640 -defaultsOSRD
-preplace port sw2shield_sda_t_out -pg 1 -y 460 -defaultsOSRD
-preplace port hdmi_in_ddc -pg 1 -y 40 -defaultsOSRD
-preplace port Vaux15 -pg 1 -y 180 -defaultsOSRD
-preplace port Vaux8 -pg 1 -y 100 -defaultsOSRD
-preplace port pdm_m_data_i -pg 1 -y 240 -defaultsOSRD
-preplace port Vaux9 -pg 1 -y 120 -defaultsOSRD
-preplace portBus pmodJA_tri_out -pg 1 -y 200 -defaultsOSRD
-preplace portBus pmodJB_tri_out -pg 1 -y 280 -defaultsOSRD
-preplace portBus sw2shield_data_out_a5_a0 -pg 1 -y 340 -defaultsOSRD
-preplace portBus shield2sw_data_in_d1_d0 -pg 1 -y 320 -defaultsOSRD
-preplace portBus pdm_m_clk -pg 1 -y 160 -defaultsOSRD
-preplace portBus pmodJB_data_out -pg 1 -y 220 -defaultsOSRD
-preplace portBus pwm_audio_o -pg 1 -y 300 -defaultsOSRD
-preplace portBus sw2shield_tri_out_d13_d2 -pg 1 -y 540 -defaultsOSRD
-preplace portBus pmodJB_data_in -pg 1 -y 280 -defaultsOSRD
-preplace portBus sw2shield_data_out_d1_d0 -pg 1 -y 360 -defaultsOSRD
-preplace portBus shield2sw_data_in_a5_a0 -pg 1 -y 300 -defaultsOSRD
-preplace portBus sw2shield_data_out_d13_d2 -pg 1 -y 380 -defaultsOSRD
-preplace portBus hdmi_out_hpd -pg 1 -y 120 -defaultsOSRD
-preplace portBus pdm_audio_shutdown -pg 1 -y 140 -defaultsOSRD
-preplace portBus sw2shield_tri_out_a5_a0 -pg 1 -y 480 -defaultsOSRD
-preplace portBus pmodJA_data_out -pg 1 -y 180 -defaultsOSRD
-preplace portBus shield2sw_data_in_d13_d2 -pg 1 -y 340 -defaultsOSRD
-preplace portBus pmodJA_data_in -pg 1 -y 260 -defaultsOSRD
-preplace portBus sw2shield_tri_out_d1_d0 -pg 1 -y 520 -defaultsOSRD
-preplace portBus hdmi_in_hpd -pg 1 -y 60 -defaultsOSRD
-preplace inst axi_dma_0 -pg 1 -lvl 3 -y 120 -defaultsOSRD
-preplace inst system_interrupts -pg 1 -lvl 3 -y 340 -defaultsOSRD
-preplace inst rst_processing_system7_0_100M -pg 1 -lvl 1 -y 530 -defaultsOSRD
-preplace inst swsleds_gpio -pg 1 -lvl 5 -y 770 -defaultsOSRD
-preplace inst xlconcat_0 -pg 1 -lvl 2 -y 70 -defaultsOSRD
-preplace inst rgbleds_gpio -pg 1 -lvl 5 -y 640 -defaultsOSRD
-preplace inst btns_gpio -pg 1 -lvl 5 -y 510 -defaultsOSRD
-preplace inst axi_mem_intercon -pg 1 -lvl 4 -y 170 -defaultsOSRD
-preplace inst axis_data_fifo_0 -pg 1 -lvl 2 -y 230 -defaultsOSRD
-preplace inst processing_system7_0_axi_periph -pg 1 -lvl 2 -y 640 -defaultsOSRD
-preplace inst processing_system7_0 -pg 1 -lvl 5 -y 290 -defaultsOSRD
-preplace netloc btns_gpio_GPIO 1 5 1 NJ
-preplace netloc processing_system7_0_DDR 1 5 1 NJ
-preplace netloc iop_interrupts_irq 1 3 2 NJ 350 1460
-preplace netloc processing_system7_0_axi_periph_M03_AXI 1 2 1 770
-preplace netloc processing_system7_0_axi_periph_M00_AXI 1 2 3 780 490 NJ 490 NJ
-preplace netloc processing_system7_0_M_AXI_GP0 1 1 5 400 420 NJ 420 NJ 420 NJ 420 1920
-preplace netloc rgbled_gpio_GPIO 1 5 1 NJ
-preplace netloc processing_system7_0_FCLK_RESET0_N 1 0 6 20 430 NJ 430 NJ 440 NJ 440 NJ 440 1910
-preplace netloc axi_mem_intercon_M00_AXI 1 4 1 1480
-preplace netloc processing_system7_0_axi_periph_M02_AXI 1 2 3 NJ 640 NJ 640 1470
-preplace netloc swsleds_gpio_GPIO2 1 5 1 NJ
-preplace netloc axi_dma_0_s2mm_introut 1 1 3 400 150 NJ 240 1120
-preplace netloc rst_processing_system7_0_100M_peripheral_aresetn 1 1 4 380 440 750 430 1160 510 1460
-preplace netloc axi_dma_0_M_AXI_MM2S 1 3 1 1150
-preplace netloc xlconcat_0_dout 1 2 1 730
-preplace netloc swsleds_gpio_GPIO 1 5 1 NJ
-preplace netloc processing_system7_0_FIXED_IO 1 5 1 NJ
-preplace netloc axi_dma_0_mm2s_introut 1 1 3 390 140 NJ 230 1130
-preplace netloc axi_dma_0_M_AXI_S2MM 1 3 1 N
-preplace netloc axis_data_fifo_0_M_AXIS 1 2 1 720
-preplace netloc rst_processing_system7_0_100M_interconnect_aresetn 1 1 3 390 310 NJ 250 NJ
-preplace netloc processing_system7_0_FCLK_CLK0 1 0 6 30 440 370 130 780 260 1150 500 1480 410 1900
-preplace netloc axi_dma_0_M_AXIS_MM2S 1 1 3 380 10 NJ 10 1140
-preplace netloc processing_system7_0_axi_periph_M04_AXI 1 2 1 740
-preplace netloc processing_system7_0_axi_periph_M01_AXI 1 2 3 NJ 620 NJ 620 N
-levelinfo -pg 1 0 200 560 950 1310 1690 1940 -top 0 -bot 840
-",
-}
 
   # Restore current instance
   current_bd_instance $oldCurInst
