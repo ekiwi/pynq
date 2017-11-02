@@ -1,0 +1,9 @@
+# vivado project directory
+ekiwi/
+
+# bitstream
+ekiwi.bit
+
+# vivado
+*.jou
+*.log
