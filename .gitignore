@@ -7,3 +7,4 @@ ekiwi/
 # vivado
 *.jou
 *.log
+.Xil
