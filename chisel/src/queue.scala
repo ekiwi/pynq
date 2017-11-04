@@ -14,7 +14,7 @@ class Queue(val depth: Int, val width: Int) extends Module {
 		val len = Output(UInt(log2Ceil(depth).W))
 	})
 
-	io.full := io.len === (depth - 1).U
+	io.full := io.len === depth.U
 	io.empty := io.len === 0.U
 
 	val do_push = io.push_back && !io.full
