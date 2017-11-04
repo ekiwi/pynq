@@ -50,6 +50,9 @@ class QueueUnitTester(queue: Queue, val depth: Int) extends PeekPokeTester(queue
 	expect(q.io.full, true)
 	expect(q.io.out, 1)
 
+	// dummy cycle
+	step(1)
+
 	// additional pushes should be ignored
 	poke(q.io.push_back, true)
 	for ( ii <- 1 to 10 ) {
@@ -59,7 +62,7 @@ class QueueUnitTester(queue: Queue, val depth: Int) extends PeekPokeTester(queue
 	poke(q.io.push_back, false)
 
 	// pop all the things
-	poke(q.io.push_back, true)
+	poke(q.io.pop_front, true)
 	for ( ii <- 1 to depth ) {
 		expect(q.io.empty, false)
 		expect(q.io.out, ii)
@@ -67,7 +70,7 @@ class QueueUnitTester(queue: Queue, val depth: Int) extends PeekPokeTester(queue
 		expect(q.io.len, depth - ii)
 		expect(q.io.full, false)
 	}
-	poke(q.io.push_back, false)
+	poke(q.io.pop_front, false)
 	expect(q.io.full, false)
 	expect(q.io.empty, true)
 	expect(q.io.len, 0)
