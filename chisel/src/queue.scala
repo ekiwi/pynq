@@ -15,7 +15,7 @@ class Queue(val depth: Int, val width: Int) extends Module {
 	})
 
 	io.full := io.len === depth.U
-	io.empty := io.len > 0.U
+	io.empty := io.len === 0.U
 
 	val do_push = io.push_back && !io.full
 	val do_pop  = io.pop_front && !io.empty
