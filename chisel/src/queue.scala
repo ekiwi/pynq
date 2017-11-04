@@ -3,10 +3,10 @@ package pynq
 import chisel3._
 import chisel3.util._
 
-class Queue[T <: Data](val depth: Int, data_t: T) extends Module {
+class Queue(val depth: Int, val width: Int) extends Module {
 	val io = IO(new Bundle {
-		val in   = Input(data_t.chiselCloneType)
-		val out  = Output(data_t.chiselCloneType)
+		val in   = Input(UInt(width.W))
+		val out  = Output(UInt(width.W))
 		val push_back = Input(Bool())
 		val pop_front = Input(Bool())
 		val full = Output(Bool())

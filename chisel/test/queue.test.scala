@@ -6,7 +6,7 @@ import chisel3._
 import chisel3.iotesters
 import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
 
-class QueueUnitTester[T <: Data](queue: Queue[T], val depth: Int) extends PeekPokeTester(queue) {
+class QueueUnitTester(queue: Queue, val depth: Int) extends PeekPokeTester(queue) {
 	private val q = queue
 
 	poke(q.io.push_back, false)
@@ -38,7 +38,7 @@ class GCDTester extends ChiselFlatSpec {
 
 	for ( backendName <- backendNames ) {
 		"Queue" should s"behave like a bounded queue (with $backendName)" in {
-			Driver(() => new Queue(4, UInt(8.W)), backendName) {
+			Driver(() => new Queue(4, 8), backendName) {
 				queue => new QueueUnitTester(queue, 4)
 			} should be (true)
 		}
