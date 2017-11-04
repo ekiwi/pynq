@@ -11,7 +11,7 @@ class Queue(val depth: Int, val width: Int) extends Module {
 		val pop_front = Input(Bool())
 		val full = Output(Bool())
 		val empty = Output(Bool())
-		val len = Output(UInt(log2Ceil(depth).W))
+		val len = Output(UInt(log2Ceil(depth+1).W))
 	})
 
 	io.full := io.len === depth.U
@@ -20,7 +20,7 @@ class Queue(val depth: Int, val width: Int) extends Module {
 	val do_push = io.push_back && !io.full
 	val do_pop  = io.pop_front && !io.empty
 
-	val len = RegInit(0.U(log2Ceil(depth).W))
+	val len = RegInit(0.U(log2Ceil(depth+1).W))
 	io.len := len
 	len := MuxCase(len, Seq(
 		(do_push && !do_pop ) -> (len + 1.U),
