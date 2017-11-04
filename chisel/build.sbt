@@ -17,3 +17,6 @@ val defaultVersions = Map(
 
 libraryDependencies ++= (Seq("chisel3","chisel-iotesters").map {
   dep: String => "edu.berkeley.cs" %% dep % sys.props.getOrElse(dep + "Version", defaultVersions(dep)) })
+
+scalaSource in Compile := baseDirectory.value / "src"
+scalaSource in Test := baseDirectory.value / "test"
