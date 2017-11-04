@@ -13,4 +13,9 @@ class Queue[T <: Data](val depth: Int, data_t: T) extends Module {
 		val empty = Output(Bool())
 		val len = Output(UInt(log2Ceil(depth).W))
 	})
+
+	io.out := 0.U
+	io.full := false.B
+	io.empty := true.B
+	io.len := 0.U
 }
