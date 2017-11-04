@@ -9,26 +9,68 @@ import chisel3.iotesters.{ChiselFlatSpec, Driver, PeekPokeTester}
 class QueueUnitTester(queue: Queue, val depth: Int) extends PeekPokeTester(queue) {
 	private val q = queue
 
+	// define all inputs
 	poke(q.io.push_back, false)
 	poke(q.io.pop_front, false)
-	//poke(q.io.in, 0)
+	poke(q.io.in, 0)
+	// check reset state
+	expect(q.io.full, depth == 0)
+	expect(q.io.empty, depth > 0)
+	expect(q.io.len, 0)
+	step(1)
 
+	// push one thing
+	expect(q.io.full, false)
+	expect(q.io.empty, true)
+	expect(q.io.len, 0)
+	poke(q.io.in, 0x19)
+	poke(q.io.push_back, true)
+	step(1)
+	poke(q.io.push_back, false)
+	expect(q.io.full, false)
+	expect(q.io.empty, false)
+	expect(q.io.len, 1)
+	expect(q.io.out, 0x19)
+	poke(q.io.pop_front, true)
+	step(1)
+	poke(q.io.pop_front, false)
+	expect(q.io.full, false)
+	expect(q.io.empty, true)
+	expect(q.io.len, 0)
 
-	// for(i <- 1 to 40 by 3) {
-	// for (j <- 1 to 40 by 7) {
-	// 	poke(gcd.io.value1, i)
-	// 	poke(gcd.io.value2, j)
-	// 	poke(gcd.io.loadingValues, 1)
-	// 	step(1)
-	// 	poke(gcd.io.loadingValues, 0)
+	// push all the things
+	poke(q.io.push_back, true)
+	for ( ii <- 1 to depth ) {
+		expect(q.io.full, false)
+		poke(q.io.in, ii)
+		step(1)
+		expect(q.io.len, ii)
+	}
+	poke(q.io.push_back, false)
+	expect(q.io.full, true)
+	expect(q.io.out, 1)
 
-	// 	val (expected_gcd, steps) = computeGcd(i, j)
+	// additional pushes should be ignored
+	poke(q.io.push_back, true)
+	for ( ii <- 1 to 10 ) {
+		expect(q.io.full, true)
+		step(1)
+	}
+	poke(q.io.push_back, false)
 
-	// 	step(steps - 1) // -1 is because we step(1) already to toggle the enable
-	// 	expect(gcd.io.outputGCD, expected_gcd)
-	// 	expect(gcd.io.outputValid, 1)
-	// }
-	// }
+	// pop all the things
+	poke(q.io.push_back, true)
+	for ( ii <- 1 to depth ) {
+		expect(q.io.empty, false)
+		expect(q.io.out, ii)
+		step(1)
+		expect(q.io.len, depth - ii)
+		expect(q.io.full, false)
+	}
+	poke(q.io.push_back, false)
+	expect(q.io.full, false)
+	expect(q.io.empty, true)
+	expect(q.io.len, 0)
 }
 
 class GCDTester extends ChiselFlatSpec {
