@@ -18,23 +18,17 @@ class AxisQueue(val depth: Int, val width: Int) extends Module {
 		val m_axis_tkeep = Output(UInt(bit_count.W))
 		val m_axis_tlast = Output(Bool())
 	})
-	val data = Module(new Queue(depth, width))
-	val keep = Module(new Queue(depth, bit_count))
+	val q = Module(new Queue(depth, width + bit_count + 1))
 
-	// we do not care about packets
-	io.m_axis_tlast := false.B
+	q.io.push_back := io.s_axis_tvalid
+	io.s_axis_tready := !q.io.full
+	q.io.in := Cat(io.s_axis_tlast, io.s_axis_tkeep, io.s_axis_tdata)
 
-	data.io.push_back := io.s_axis_tvalid
-	keep.io.push_back := io.s_axis_tvalid
-	io.s_axis_tready := !data.io.full && !keep.io.full
-	data.io.in := io.s_axis_tdata
-	keep.io.in := io.s_axis_tkeep
-
-	io.m_axis_tvalid := !data.io.empty && !keep.io.empty
-	data.io.pop_front := io.m_axis_tready
-	keep.io.pop_front := io.m_axis_tready
-	io.m_axis_tdata := data.io.out
-	io.m_axis_tkeep := keep.io.out
+	io.m_axis_tvalid := !q.io.empty
+	q.io.pop_front := io.m_axis_tready
+	io.m_axis_tdata := q.io.out(width-1, 0)
+	io.m_axis_tkeep := q.io.out((width+bit_count-1), width)
+	io.m_axis_tlast := q.io.out(width+bit_count)
 }
 
 object AxisQueueGenerator extends App {
