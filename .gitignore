@@ -8,3 +8,7 @@ ekiwi/
 *.jou
 *.log
 .Xil
+
+# verilog generation artifacts
+chisel/AxisQueue.anno
+chisel/AxisQueue.fir
