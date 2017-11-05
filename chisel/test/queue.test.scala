@@ -82,6 +82,22 @@ class QueueUnitTester(queue: Queue, val depth: Int) extends PeekPokeTester(queue
 		step(1)
 	}
 	poke(q.io.pop_front, false)
+
+	// push and pop active
+	poke(q.io.push_back, true)
+	poke(q.io.pop_front, true)
+	poke(q.io.in, 123)
+	expect(q.io.empty, true)
+	step(1)
+	expect(q.io.empty, false)
+	expect(q.io.len, 1)
+	for ( ii <- 1 to 10 ) {
+		step(1)
+		expect(q.io.len, 1)
+	}
+	poke(q.io.push_back, false)
+	step(1)
+	expect(q.io.empty, true)
 }
 
 class GCDTester extends ChiselFlatSpec {
