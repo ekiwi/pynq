@@ -116,6 +116,12 @@
           </spirit:physicalPort>
         </spirit:portMap>
       </spirit:portMaps>
+      <spirit:parameters>
+        <spirit:parameter>
+          <spirit:name>POLARITY</spirit:name>
+          <spirit:value spirit:id="BUSIFPARAM_VALUE.RESET.POLARITY">ACTIVE_HIGH</spirit:value>
+        </spirit:parameter>
+      </spirit:parameters>
     </spirit:busInterface>
     <spirit:busInterface>
       <spirit:name>clock</spirit:name>
@@ -158,7 +164,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>e9d41d3d</spirit:value>
+            <spirit:value>2e7469cf</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -174,7 +180,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>e9d41d3d</spirit:value>
+            <spirit:value>2e7469cf</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -386,7 +392,7 @@
       <spirit:file>
         <spirit:name>AxisQueue.v</spirit:name>
         <spirit:fileType>verilogSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_e9d41d3d</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_2e7469cf</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
     <spirit:fileSet>
@@ -431,11 +437,11 @@
       </xilinx:taxonomies>
       <xilinx:displayName>AxisQueue_v1_0</xilinx:displayName>
       <xilinx:definitionSource>package_project</xilinx:definitionSource>
-      <xilinx:coreRevision>2</xilinx:coreRevision>
+      <xilinx:coreRevision>4</xilinx:coreRevision>
       <xilinx:upgrades>
         <xilinx:canUpgradeFrom>user.org:user:AxisQueue:1.0</xilinx:canUpgradeFrom>
       </xilinx:upgrades>
-      <xilinx:coreCreationDateTime>2017-11-04T23:36:08Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2017-11-05T06:42:29Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="nopcore"/>
         <xilinx:tag xilinx:name="user.org:user:AxisQueue:1.0_ARCHIVE_LOCATION">/home/kevin/hfuzz/pynq/chisel</xilinx:tag>
@@ -445,9 +451,9 @@
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2017.2</xilinx:xilinxVersion>
-      <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="885de25d"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="e357a747"/>
-      <xilinx:checksum xilinx:scope="ports" xilinx:value="faf20624"/>
+      <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="c365382a"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="96e96ef8"/>
+      <xilinx:checksum xilinx:scope="ports" xilinx:value="1abc1236"/>
       <xilinx:checksum xilinx:scope="parameters" xilinx:value="2f147992"/>
     </xilinx:packagingInfo>
   </spirit:vendorExtensions>
