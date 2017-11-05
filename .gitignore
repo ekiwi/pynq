@@ -12,3 +12,4 @@ ekiwi/
 # verilog generation artifacts
 chisel/AxisQueue.anno
 chisel/AxisQueue.fir
+chisel/AxisQueue.v
