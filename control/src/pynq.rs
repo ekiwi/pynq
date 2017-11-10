@@ -3,7 +3,7 @@
 extern crate libc;
 use std;
 use std::ffi::CString;
-use std::ops::{Index, IndexMut};
+use std::ops::{Index, IndexMut, Drop};
 
 struct MemoryMappedIO {
 	mem : *mut u32,
@@ -13,20 +13,30 @@ struct MemoryMappedIO {
 impl MemoryMappedIO {
 	fn map(phys_addr : u32, length : u32) -> Self {
 		let page_size = unsafe { libc::sysconf(libc::_SC_PAGESIZE) } as u32;
-		let base_addr = phys_addr & !page_size;
-		let offset = phys_addr - base_addr;
+		assert!(phys_addr % page_size == 0, "Only page boundary aligned IO is supported!");
 		let phys_mem = CString::new("/dev/mem").unwrap();
+		let words = ((length + 3) / 4) as usize;
 		let mem = unsafe {
 			let fd = libc::open(phys_mem.as_ptr(), libc::O_RDWR | libc::O_SYNC);
 			assert!(fd > -1, "Failed to open /dev/mem. Are we root?");
-			let mm = libc::mmap(std::ptr::null_mut(), (length + offset) as usize,
+			let mm = libc::mmap(std::ptr::null_mut(), words * 4,
 			                    libc::PROT_READ | libc::PROT_WRITE,
-			                    libc::MAP_SHARED, fd, base_addr as libc::c_long);
+			                    libc::MAP_SHARED, fd, phys_addr as libc::c_long);
 			assert!(mm != libc::MAP_FAILED, "Failed to mmap physical memory.");
-			(mm as *mut u8).offset(offset as isize) as *mut u32
+			assert!(libc::close(fd) == 0, "Failed to close /dev/mem.");
+			mm as *mut u32
 		};
-		let words = ((length + 3) / 4) as usize;
 		MemoryMappedIO { mem, words }
+	}
+}
+
+impl Drop for MemoryMappedIO {
+	fn drop(&mut self) {
+		unsafe {
+			assert!(
+				libc::munmap(self.mem as *mut libc::c_void, self.words * 4) == 0,
+				"Failed to unmap IO.");
+		}
 	}
 }
 
@@ -46,7 +56,7 @@ pub fn blink_leds() {
 	let mut rgb_led_io = MemoryMappedIO::map(0x41210000, 4);
 	let ld4 = 1 << 2;
 	let ld5 = 1 << 0;
-	loop {
+	for _ in 0..10 {
 		rgb_led_io[0] = (ld5 & 7) << 3;
 		std::thread::sleep(std::time::Duration::from_millis(200));
 		rgb_led_io[0] = (ld4 & 7);
