@@ -53,15 +53,19 @@ impl IndexMut<usize> for MemoryMappedIO {
 }
 
 pub fn blink_leds() {
-	let mut rgb_led_io = MemoryMappedIO::map(0x41210000, 4);
+	let mut rgb_led_io = MemoryMappedIO::map(0x41210000, 8);
 	let ld4 = 1 << 2;
 	let ld5 = 1 << 0;
+	// configure lowest 6 gpios as output
+	rgb_led_io[1] = !((7 << 3) | 7);
 	for _ in 0..10 {
 		rgb_led_io[0] = (ld5 & 7) << 3;
 		std::thread::sleep(std::time::Duration::from_millis(200));
 		rgb_led_io[0] = (ld4 & 7);
 		std::thread::sleep(std::time::Duration::from_millis(200));
 	}
+	// reset to all inputs
+	rgb_led_io[1] = !0u32;
 }
 
 
