@@ -13,8 +13,7 @@ pub fn blink_leds() {
 
 
 fn main() {
-	//let msg = CString::new("Hello, world!\n").unwrap();
-	//unsafe { libc::write(0, msg.as_ptr() as *const libc::c_void, 14); }
+	pynq::load_bitstream("system.bit", &[pynq::Clock{ div0: 5, div1: 2 }]).unwrap();
 
 	let child = std::thread::spawn(blink_leds);
 	let _ = child.join();
