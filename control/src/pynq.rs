@@ -5,6 +5,48 @@ use std;
 use std::ffi::CString;
 use std::ops::{Index, IndexMut, Drop};
 
+#[derive(Copy, Clone, Debug)]
+pub enum Color {
+	Black = 0,
+	Blue = 1,
+	Green = 2,
+	Cyan = 3,
+	Red = 4,
+	Magenta = 5,
+	Yellow = 6,
+	White = 7,
+}
+
+pub struct RgbLeds {
+	mem : MemoryMappedIO,
+}
+
+impl RgbLeds {
+	pub fn get() -> Self {
+		let mut mem = MemoryMappedIO::map(0x41210000, 8);
+		// configure lowest 6 gpios as output
+		mem[1] = !((7 << 3) | 7);
+		RgbLeds { mem }
+	}
+	pub fn set(&mut self, ld4_color : Color, ld5_color : Color) {
+		self.mem[0] = (ld4_color as u32 & 7) | ((ld5_color as u32 & 7) << 3);
+	}
+	pub fn set_ld4(&mut self, color : Color) {
+		let old = self.mem[0];
+		self.mem[0] = (old & !7) | ((color as u32) & 7);
+	}
+	pub fn set_ld5(&mut self, color : Color) {
+		let old = self.mem[0];
+		self.mem[0] = (old & !(7 << 3)) | (((color as u32) & 7) << 3);
+	}
+}
+impl Drop for RgbLeds {
+	fn drop(&mut self) {
+		// reset to all inputs
+		self.mem[1] = !0u32;
+	}
+}
+
 struct MemoryMappedIO {
 	mem : *mut u32,
 	words : usize,
@@ -51,21 +93,4 @@ impl IndexMut<usize> for MemoryMappedIO {
 		unsafe { &mut std::slice::from_raw_parts_mut(self.mem, self.words)[ii] }
 	}
 }
-
-pub fn blink_leds() {
-	let mut rgb_led_io = MemoryMappedIO::map(0x41210000, 8);
-	let ld4 = 1 << 2;
-	let ld5 = 1 << 0;
-	// configure lowest 6 gpios as output
-	rgb_led_io[1] = !((7 << 3) | 7);
-	for _ in 0..10 {
-		rgb_led_io[0] = (ld5 & 7) << 3;
-		std::thread::sleep(std::time::Duration::from_millis(200));
-		rgb_led_io[0] = (ld4 & 7);
-		std::thread::sleep(std::time::Duration::from_millis(200));
-	}
-	// reset to all inputs
-	rgb_led_io[1] = !0u32;
-}
-
 
