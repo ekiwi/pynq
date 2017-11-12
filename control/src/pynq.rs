@@ -119,6 +119,12 @@ impl DmaBuffer {
 		let data = unsafe { xlnk.mmap_buffer(id, size) } as *mut u8;
 		DmaBuffer { id, physical_addr, data, size }
 	}
+	pub fn as_slice_mut(&mut self) -> &mut [u8] {
+		unsafe { std::slice::from_raw_parts_mut(self.data, self.size) }
+	}
+	pub fn as_slice(&self) -> &[u8] {
+		unsafe { std::slice::from_raw_parts(self.data, self.size) }
+	}
 }
 impl Drop for DmaBuffer {
 	fn drop(&mut self) {
