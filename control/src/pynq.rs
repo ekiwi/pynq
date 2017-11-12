@@ -128,16 +128,55 @@ impl Drop for DmaBuffer {
 	}
 }
 
-
-
 pub struct Dma {
-	mem : MemoryMappedIO
+	mem : MemoryMappedIO,
+	tx_buffer : Option<DmaBuffer>,
+	rx_buffer : Option<DmaBuffer>,
 }
 
 impl Dma {
+	// TODO: support interrupts
 	pub fn get() -> Self {
 		let mem = MemoryMappedIO::map(0x40000000, 2 * 0x30);
-		Dma { mem }
+		let mut dma = Dma { mem, tx_buffer: None, rx_buffer: None };
+		dma.start();
+		dma
+	}
+	fn start(&mut self) {
+		// TODO: add timeout
+		self.mem[ 0] = 0x00000001;
+		self.mem[12] = 0x00000001;
+		while !((self.mem[1] & 1 == 0) && (self.mem[12+1] & 1 == 0)) { }
+	}
+	fn is_tx_idle(&mut self) -> bool { self.mem[   1] & 2 == 2 }
+	fn is_rx_idle(&mut self) -> bool { self.mem[12+1] & 2 == 2 }
+	pub fn start_send(&mut self, buf : DmaBuffer) {
+		assert!(self.tx_buffer.is_none(), "Cannot send when transmission is in progress!");
+		self.mem[ 6] = buf.physical_addr;
+		self.mem[10] = buf.size as u32;
+		self.tx_buffer = Some(buf);
+	}
+	pub fn is_send_done(&mut self) -> bool { self.is_tx_idle() }
+	pub fn finish_send(&mut self) -> DmaBuffer {
+		assert!(self.is_send_done(), "Cannot finish send when transmission hasn't finished!");
+		assert!(self.tx_buffer.is_some(), "Cannot finish send when no transmission was started!");
+		let mut buf = None;
+		std::mem::swap(&mut buf, &mut self.tx_buffer);
+		buf.unwrap()
+	}
+	pub fn start_receive(&mut self, buf : DmaBuffer) {
+		assert!(self.rx_buffer.is_none(), "Cannot receive when transmission is in progress!");
+		self.mem[12+ 6] = buf.physical_addr;
+		self.mem[12+10] = buf.size as u32;
+		self.rx_buffer = Some(buf);
+	}
+	pub fn is_receive_done(&mut self) -> bool { self.is_rx_idle() }
+	pub fn finish_receive(&mut self) -> DmaBuffer {
+		assert!(self.is_receive_done(), "Cannot finish receive when transmission hasn't finished!");
+		assert!(self.rx_buffer.is_some(), "Cannot finish receive when no transmission was started!");
+		let mut buf = None;
+		std::mem::swap(&mut buf, &mut self.rx_buffer);
+		buf.unwrap()
 	}
 }
 
