@@ -46,8 +46,7 @@ fn main() {
 	{
 		let tx_data = tx.as_slice_u64_mut();
 		tx_data[0] = 0x19931993 << 32 | buffer_id;
-		//tx_data[1] = (test_count as u64) << 48 | (cycle_count as u64) << 32;
-		tx_data[1] = (cycle_count as u64) << 48 | (test_count as u64) << 32;
+		tx_data[1] = (test_count as u64) << 48 | (cycle_count as u64) << 32;
 		let d0 : u64 = (400 << 32) | 100;
 		let d1 : u64 = 1 << 63 | 1 << 62;
 		let total_cycles = test_count * cycle_count;
