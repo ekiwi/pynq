@@ -3,7 +3,7 @@
 extern crate libc;
 use std;
 use std::ffi::CString;
-use std::ops::{Index, IndexMut, Drop};
+use std::ops::{Drop};
 use std::io::{Read, Write};
 use std::fs::File;
 
@@ -27,10 +27,12 @@ fn configure_clocks(clocks: &[Clock]) {
 	fn offset(ii : usize) -> usize { (0x170 / 4) + (ii * (0x10 / 4)) }
 	let mut mem = MemoryMappedIO::map(base_addr, 0x170 + 0x10 * 4);
 	for (ii, clk) in clocks.iter().enumerate() {
-		mem[offset(ii)] = calc_divs(clk, mem[offset(ii)]);
+		let old = mem.read(offset(ii));
+		mem.write(offset(ii), calc_divs(clk, old));
 	}
 	for ii in clocks.len()..4 {
-		mem[offset(ii)] = calc_divs(&disabled, mem[offset(ii)]);
+		let old = mem.read(offset(ii));
+		mem.write(offset(ii), calc_divs(&disabled, old));
 	}
 }
 
@@ -156,16 +158,16 @@ impl Dma {
 	}
 	fn start(&mut self) {
 		// TODO: add timeout
-		self.mem[ 0] = 0x00000001;
-		self.mem[12] = 0x00000001;
-		while !((self.mem[1] & 1 == 0) && (self.mem[12+1] & 1 == 0)) { }
+		self.mem.write( 0, 0x00000001);
+		self.mem.write(12, 0x00000001);
+		while !((self.mem.read(1) & 1 == 0) && (self.mem.read(12+1) & 1 == 0)) { }
 	}
-	fn is_tx_idle(&mut self) -> bool { self.mem[   1] & 2 == 2 }
-	fn is_rx_idle(&mut self) -> bool { self.mem[12+1] & 2 == 2 }
+	fn is_tx_idle(&mut self) -> bool { self.mem.read(   1) & 2 == 2 }
+	fn is_rx_idle(&mut self) -> bool { self.mem.read(12+1) & 2 == 2 }
 	pub fn start_send(&mut self, buf : DmaBuffer) {
 		assert!(self.tx_buffer.is_none(), "Cannot send when transmission is in progress!");
-		self.mem[ 6] = buf.physical_addr;
-		self.mem[10] = buf.size as u32;
+		self.mem.write( 6, buf.physical_addr);
+		self.mem.write(10, buf.size as u32);
 		self.tx_buffer = Some(buf);
 	}
 	pub fn is_send_done(&mut self) -> bool { self.is_tx_idle() }
@@ -178,8 +180,8 @@ impl Dma {
 	}
 	pub fn start_receive(&mut self, buf : DmaBuffer) {
 		assert!(self.rx_buffer.is_none(), "Cannot receive when transmission is in progress!");
-		self.mem[12+ 6] = buf.physical_addr;
-		self.mem[12+10] = buf.size as u32;
+		self.mem.write(12+ 6, buf.physical_addr);
+		self.mem.write(12+10, buf.size as u32);
 		self.rx_buffer = Some(buf);
 	}
 	pub fn is_receive_done(&mut self) -> bool { self.is_rx_idle() }
@@ -212,25 +214,25 @@ impl RgbLeds {
 	pub fn get() -> Self {
 		let mut mem = MemoryMappedIO::map(0x41210000, 8);
 		// configure lowest 6 gpios as output
-		mem[1] = !((7 << 3) | 7);
+		mem.write(1, !((7 << 3) | 7));
 		RgbLeds { mem }
 	}
 	pub fn set(&mut self, ld4_color : Color, ld5_color : Color) {
-		self.mem[0] = (ld4_color as u32 & 7) | ((ld5_color as u32 & 7) << 3);
+		self.mem.write(0, (ld4_color as u32 & 7) | ((ld5_color as u32 & 7) << 3));
 	}
 	pub fn set_ld4(&mut self, color : Color) {
-		let old = self.mem[0];
-		self.mem[0] = (old & !7) | ((color as u32) & 7);
+		let old = self.mem.read(0);
+		self.mem.write(0, (old & !7) | ((color as u32) & 7));
 	}
 	pub fn set_ld5(&mut self, color : Color) {
-		let old = self.mem[0];
-		self.mem[0] = (old & !(7 << 3)) | (((color as u32) & 7) << 3);
+		let old = self.mem.read(0);
+		self.mem.write(0, (old & !(7 << 3)) | (((color as u32) & 7) << 3));
 	}
 }
 impl Drop for RgbLeds {
 	fn drop(&mut self) {
 		// reset to all inputs
-		self.mem[1] = !0u32;
+		self.mem.write(1, !0u32);
 	}
 }
 
@@ -257,6 +259,12 @@ impl MemoryMappedIO {
 		};
 		MemoryMappedIO { mem, words }
 	}
+	fn write(&mut self, offset : usize, value : u32) {
+		unsafe { std::ptr::write_volatile(self.mem.offset(offset as isize), value) }
+	}
+	fn read(&mut self, offset : usize) -> u32 {
+		unsafe { std::ptr::read_volatile(self.mem.offset(offset as isize)) }
+	}
 }
 
 impl Drop for MemoryMappedIO {
@@ -268,16 +276,3 @@ impl Drop for MemoryMappedIO {
 		}
 	}
 }
-
-impl Index<usize> for MemoryMappedIO {
-	type Output = u32;
-	fn index(&self, ii : usize) -> &u32 {
-		unsafe { &std::slice::from_raw_parts(self.mem, self.words)[ii] }
-	}
-}
-impl IndexMut<usize> for MemoryMappedIO {
-	fn index_mut(&mut self, ii : usize) -> &mut u32 {
-		unsafe { &mut std::slice::from_raw_parts_mut(self.mem, self.words)[ii] }
-	}
-}
-
