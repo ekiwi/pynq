@@ -125,6 +125,12 @@ impl DmaBuffer {
 	pub fn as_slice(&self) -> &[u8] {
 		unsafe { std::slice::from_raw_parts(self.data, self.size) }
 	}
+	pub fn as_slice_u64_mut(&mut self) -> &mut [u64] {
+		unsafe { std::slice::from_raw_parts_mut(self.data as *mut u64, self.size/ 8) }
+	}
+	pub fn as_slice_u64(&self) -> &[u64] {
+		unsafe { std::slice::from_raw_parts(self.data as *const u64, self.size / 8) }
+	}
 }
 impl Drop for DmaBuffer {
 	fn drop(&mut self) {
