@@ -1,10 +1,11 @@
 // simple rust interface to some of the PYNQ peripherals
+// copied from https://github.com/ekiwi/pynq
 
 extern crate libc;
 use std;
 use std::ffi::CString;
 use std::ops::{Drop};
-use std::io::{Read, Write};
+use std::io::{Read, Write, Seek, SeekFrom};
 use std::fs::File;
 
 #[derive(Copy, Clone, Debug)]
@@ -112,28 +113,69 @@ impl Drop for Xlnk {
 	}
 }
 
-pub struct DmaBuffer { id : u32, physical_addr : u32, data: *mut u8, size: usize }
+pub struct DmaBuffer { id : u32, physical_addr : u32, data: *mut u8, size: usize, offset: usize }
+
+#[derive(Clone, Copy, PartialEq, Debug)]
+/// esentially all identifying data of a DmaBuffer without the data so that it can be copied
+pub struct DmaBufferId { id: u32, physical_addr: u32, size: u32 }
 
 impl DmaBuffer {
 	pub fn allocate(size : usize) -> Self {
 		let mut xlnk = Xlnk::open();
 		let (id, physical_addr) = xlnk.alloc_buf(size, false);
 		let data = unsafe { xlnk.mmap_buffer(id, size) } as *mut u8;
-		DmaBuffer { id, physical_addr, data, size }
+		let offset = 0;
+		DmaBuffer { id, physical_addr, data, size, offset }
 	}
-	pub fn as_slice_mut(&mut self) -> &mut [u8] {
-		unsafe { std::slice::from_raw_parts_mut(self.data, self.size) }
+	fn bytes_left(&self) -> usize {
+		self.size - self.offset
 	}
-	pub fn as_slice(&self) -> &[u8] {
-		unsafe { std::slice::from_raw_parts(self.data, self.size) }
+	pub fn id(&self) -> DmaBufferId {
+		DmaBufferId { id: self.id, physical_addr: self.physical_addr, size: self.size as u32 }
 	}
-	pub fn as_slice_u64_mut(&mut self) -> &mut [u64] {
-		unsafe { std::slice::from_raw_parts_mut(self.data as *mut u64, self.size/ 8) }
-	}
-	pub fn as_slice_u64(&self) -> &[u64] {
-		unsafe { std::slice::from_raw_parts(self.data as *const u64, self.size / 8) }
+	pub fn is(&self, id: DmaBufferId) -> bool {
+		id.id == self.id && id.physical_addr == self.physical_addr && id.size == self.size as u32
 	}
 }
+impl Write for DmaBuffer {
+	fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+		let len = std::cmp::min(buf.len(), self.bytes_left());
+		let dst = unsafe{ self.data.offset(self.offset as isize) } as *mut libc::c_void;
+		let src = buf.as_ptr() as *const libc::c_void;
+		unsafe { libc::memcpy(dst, src, len) };
+		self.offset += len;
+		Ok(len)
+	}
+	fn flush(&mut self) -> std::io::Result<()> { Ok(()) }
+}
+
+impl Read for DmaBuffer {
+	fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
+		let len = std::cmp::min(buf.len(), self.bytes_left());
+		let src = unsafe{ self.data.offset(self.offset as isize) } as *const libc::c_void;
+		let dst = buf.as_ptr() as *mut libc::c_void;
+		unsafe { libc::memcpy(dst, src, len) };
+		self.offset += len;
+		Ok(len)
+	}
+}
+
+impl Seek for DmaBuffer {
+	fn seek(&mut self, pos: SeekFrom) -> std::io::Result<u64> {
+		let new_offset = match pos {
+			SeekFrom::Start(o) => o as i64,
+			SeekFrom::End(o) => self.size as i64 + o,
+			SeekFrom::Current(o) => self.offset as i64 + o,
+		};
+		if new_offset < 0 || new_offset >= self.size as i64 {
+			Err(std::io::Error::new(std::io::ErrorKind::Other, "out of bounds"))
+		} else {
+			self.offset = new_offset as usize;
+			Ok(new_offset as u64)
+		}
+	}
+}
+
 impl Drop for DmaBuffer {
 	fn drop(&mut self) {
 		let mm = self.data as *mut libc::c_void;
@@ -144,8 +186,8 @@ impl Drop for DmaBuffer {
 
 pub struct Dma {
 	mem : MemoryMappedIO,
-	tx_buffer : Option<DmaBuffer>,
-	rx_buffer : Option<DmaBuffer>,
+	tx_buffer : Option<DmaBufferId>,
+	rx_buffer : Option<DmaBufferId>,
 }
 
 impl Dma {
@@ -164,28 +206,28 @@ impl Dma {
 	}
 	fn is_tx_idle(&mut self) -> bool { self.mem.read(   1) & 2 == 2 }
 	fn is_rx_idle(&mut self) -> bool { self.mem.read(12+1) & 2 == 2 }
-	pub fn start_send(&mut self, buf : DmaBuffer) {
+	pub fn start_send(&mut self, buf : DmaBufferId) {
 		assert!(self.tx_buffer.is_none(), "Cannot send when transmission is in progress!");
 		self.mem.write( 6, buf.physical_addr);
 		self.mem.write(10, buf.size as u32);
 		self.tx_buffer = Some(buf);
 	}
 	pub fn is_send_done(&mut self) -> bool { self.is_tx_idle() }
-	pub fn finish_send(&mut self) -> DmaBuffer {
+	pub fn finish_send(&mut self) -> DmaBufferId {
 		assert!(self.is_send_done(), "Cannot finish send when transmission hasn't finished!");
 		assert!(self.tx_buffer.is_some(), "Cannot finish send when no transmission was started!");
 		let mut buf = None;
 		std::mem::swap(&mut buf, &mut self.tx_buffer);
 		buf.unwrap()
 	}
-	pub fn start_receive(&mut self, buf : DmaBuffer) {
+	pub fn start_receive(&mut self, buf : DmaBufferId) {
 		assert!(self.rx_buffer.is_none(), "Cannot receive when transmission is in progress!");
 		self.mem.write(12+ 6, buf.physical_addr);
 		self.mem.write(12+10, buf.size as u32);
 		self.rx_buffer = Some(buf);
 	}
 	pub fn is_receive_done(&mut self) -> bool { self.is_rx_idle() }
-	pub fn finish_receive(&mut self) -> DmaBuffer {
+	pub fn finish_receive(&mut self) -> DmaBufferId {
 		assert!(self.is_receive_done(), "Cannot finish receive when transmission hasn't finished!");
 		assert!(self.rx_buffer.is_some(), "Cannot finish receive when no transmission was started!");
 		let mut buf = None;

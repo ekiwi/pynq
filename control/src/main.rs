@@ -3,6 +3,58 @@ extern crate time;
 mod pynq;
 use pynq::Color;
 
+
+pub trait ReadInts : std::io::Read {
+	fn read_u16(&mut self) -> std::io::Result<u16> {
+		let mut data: [u8; 2] = [0; 2];
+		self.read_exact(&mut data)?;
+		let val = (data[1] as u16) <<  8 | (data[0] as u16) <<  0;
+		Ok(val)
+	}
+
+	fn read_u32(&mut self) -> std::io::Result<u32> {
+		let mut data: [u8; 4] = [0; 4];
+		self.read_exact(&mut data)?;
+		let val = (data[3] as u32) << 24 | (data[2] as u32) << 16 |
+		          (data[1] as u32) <<  8 | (data[0] as u32) <<  0;
+		Ok(val)
+	}
+
+	fn read_u64(&mut self) -> std::io::Result<u64> {
+		let mut data: [u8; 8] = [0; 8];
+		self.read_exact(&mut data)?;
+		let val = (data[7] as u64) << 56 | (data[6] as u64) << 48 |
+		          (data[5] as u64) << 40 | (data[4] as u64) << 32 |
+		          (data[3] as u64) << 24 | (data[2] as u64) << 16 |
+		          (data[1] as u64) <<  8 | (data[0] as u64) <<  0;
+		Ok(val)
+	}
+}
+
+pub trait WriteInts : std::io::Write {
+	fn write_u16(&mut self, val: u16) -> std::io::Result<()> {
+		let data = [(val >>  0) as u8, (val >>  8) as u8];
+		self.write_all(&data)
+	}
+
+	fn write_u32(&mut self, val: u32) -> std::io::Result<()> {
+		let data = [(val >>  0) as u8, (val >>  8) as u8,
+		            (val >> 16) as u8, (val >> 24) as u8];
+		self.write_all(&data)
+	}
+
+	fn write_u64(&mut self, val: u64) -> std::io::Result<()> {
+		let data = [(val >>  0) as u8, (val >>  8) as u8,
+		            (val >> 16) as u8, (val >> 24) as u8,
+		            (val >> 32) as u8, (val >> 40) as u8,
+		            (val >> 48) as u8, (val >> 56) as u8];
+		self.write_all(&data)
+	}
+}
+
+impl ReadInts for pynq::DmaBuffer {}
+impl WriteInts for pynq::DmaBuffer {}
+
 fn blink_leds() {
 	let mut leds = pynq::RgbLeds::get();
 	for _ in 0..10 {
@@ -41,39 +93,37 @@ fn main() {
 	let start = time::PreciseTime::now();
 
 	let mut tx = pynq::DmaBuffer::allocate(tx_bytes);
-	let rx = pynq::DmaBuffer::allocate(rx_bytes);
+	let mut rx = pynq::DmaBuffer::allocate(rx_bytes);
 	let buffer_id : u64 = 0x0abcdef0;
 	{
-		let tx_data = tx.as_slice_u64_mut();
-		tx_data[0] = 0x19931993 << 32 | buffer_id;
-		tx_data[1] = (test_count as u64) << 48 | (cycle_count as u64) << 32;
+		tx.write_u64(0x19931993 << 32 | buffer_id).unwrap();
+		tx.write_u64((test_count as u64) << 48 | (cycle_count as u64) << 32).unwrap();
 		let d0 : u64 = (400 << 32) | 100;
 		let d1 : u64 = 1 << 63 | 1 << 62;
 		let total_cycles = test_count * cycle_count;
-		for ii in 0..total_cycles {
-			tx_data[2 + ii * 2 + 0] = d0;
-			tx_data[2 + ii * 2 + 1] = d1;
+		for _ in 0..total_cycles {
+			tx.write_u64(d0).unwrap();
+			tx.write_u64(d1).unwrap();
 		}
 	}
 
 	let start_dma = time::PreciseTime::now();
 	let mut dma = pynq::Dma::get();
-	dma.start_send(tx);
-	dma.start_receive(rx);
+	dma.start_send(tx.id());
+	dma.start_receive(rx.id());
 	while !(dma.is_send_done() && dma.is_receive_done()) {}
 	let duration_dma = start_dma.to(time::PreciseTime::now()).num_microseconds().unwrap();
 
 	let _ = dma.finish_send();
-	let rx_back = dma.finish_receive();
-	let rx_back_data = rx_back.as_slice_u64();
-	assert_eq!(rx_back_data[0], 0x73537353 << 32 | buffer_id);
+	let _ = dma.finish_receive();
+	assert_eq!(rx.read_u64().unwrap(), 0x73537353 << 32 | buffer_id);
 	let cov0 = 0x0300030003000303;
 	let cov1 = 0x0000030000000000;
-	for ii in 0..test_count {
-		assert_eq!(rx_back_data[1 + ii * 2 + 0], cov0);
-		assert_eq!(rx_back_data[1 + ii * 2 + 1], cov1);
+	for _ in 0..test_count {
+		assert_eq!(rx.read_u64().unwrap(), cov0);
+		assert_eq!(rx.read_u64().unwrap(), cov1);
 	}
-	assert_eq!(rx_back_data[rx_words - 1], 0);
+	assert_eq!(rx.read_u64().unwrap(), 0);
 
 	let duration = start.to(time::PreciseTime::now()).num_microseconds().unwrap();
 
