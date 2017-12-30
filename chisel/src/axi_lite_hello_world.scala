@@ -90,7 +90,60 @@ class AxiLiteReadDifferentConstants extends Module {
 
 }
 
+
+// This provides a loop back register that can be read and written at
+// address zero.
+class AxiLiteLoopBack extends Module {
+	val io = IO(new AxiLiteFollower)
+
+	val default = 0
+
+	val OK = 0.U
+
+	// loopback register
+	val loopback = RegInit(0.U(32.W))
+
+	// read state
+	val sWaitForAddress :: sSendData :: Nil = Enum(2)
+	val read_state = RegInit(sWaitForAddress)
+	switch(read_state) {
+		is(sWaitForAddress) { when(io.arready && io.arvalid) { read_state := sSendData } }
+		is(sSendData) { when(io.rready && io.rvalid) { read_state := sWaitForAddress } }
+	}
+
+	// read
+	val read_address = RegInit(0.U(32.W))
+	when(io.arready && io.arvalid) { read_address := io.araddr }
+	io.arready := read_state === sWaitForAddress
+
+	io.rdata := Mux(read_address === 0.U, loopback, default.U)
+	io.rresp := OK
+	io.rvalid := read_state === sSendData
+
+	// write state
+	val sWaitForWAddress :: sReceiveData :: sSendFeedback :: Nil = Enum(3)
+	val write_state = RegInit(sWaitForWAddress)
+	switch(write_state) {
+		is(sWaitForWAddress) { when(io.awready && io.awvalid) { write_state := sReceiveData } }
+		is(sReceiveData) { when(io.wready && io.wvalid) { write_state := sSendFeedback } }
+		is(sSendFeedback) { when(io.bready && io.bvalid) { write_state := sWaitForWAddress } }
+	}
+
+	// write
+	val write_address = RegInit(0.U(32.W))
+	when(io.awready && io.awvalid) { write_address := io.araddr }
+	io.awready := write_state === sWaitForWAddress
+
+	when(io.wready && io.wvalid && write_address === 0.U) { loopback := io.wdata }
+	io.wready := write_state === sReceiveData
+
+	io.bvalid := write_state === sSendFeedback
+	io.bresp := OK // this is sort of a lie
+
+}
+
 object AxiLiteHelloWorldGenerator extends App {
 	chisel3.Driver.execute(args, () => new AxiLiteReadOneConstant)
 	chisel3.Driver.execute(args, () => new AxiLiteReadDifferentConstants)
+	chisel3.Driver.execute(args, () => new AxiLiteLoopBack)
 }
