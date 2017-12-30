@@ -18,8 +18,8 @@ class AxiLiteFollower extends Bundle {
 	val awvalid = Input(Bool())
 	// write response interface
 	val bresp  = Output(UInt(2.W))
-	val bready = Output(Bool())
-	val bvalid = Input(Bool())
+	val bready = Input(Bool())
+	val bvalid = Output(Bool())
 	// read data interface
 	val rdata = Output(UInt(data_bits.W))
 	val rresp = Output(UInt(2.W))
@@ -31,10 +31,30 @@ class AxiLiteFollower extends Bundle {
 	val wvalid = Input(Bool())
 }
 
-class AxiLiteHelloWorld extends Module {
+// This is the simplest AxiLite Follower I could think of.
+// It does not accept writes and always returns a single constant, no matter what
+// address is read from.
+class AxiLiteReadOnceConstant extends Module {
 	val io = IO(new AxiLiteFollower)
+
+	val magic = 0x12345678
+
+	val OK = 0.U
+
+	// read
+	io.arready := true.B
+	io.rdata := magic.U
+	io.rresp := OK
+	io.rvalid := true.B
+
+	// write
+	io.awready := false.B
+	io.bresp := 0.U // does not matter
+	io.bvalid := false.B
+	io.wready := false.B
+
 }
 
 object AxiLiteHelloWorldGenerator extends App {
-	chisel3.Driver.execute(args, () => new AxiLiteHelloWorld)
+	chisel3.Driver.execute(args, () => new AxiLiteReadOnceConstant)
 }
