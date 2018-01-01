@@ -218,7 +218,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>ebaa971b</spirit:value>
+            <spirit:value>763bbb6c</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -234,7 +234,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>ebaa971b</spirit:value>
+            <spirit:value>763bbb6c</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -285,7 +285,7 @@
         <spirit:wire>
           <spirit:direction>in</spirit:direction>
           <spirit:vector>
-            <spirit:left spirit:format="long">3</spirit:left>
+            <spirit:left spirit:format="long">7</spirit:left>
             <spirit:right spirit:format="long">0</spirit:right>
           </spirit:vector>
           <spirit:wireTypeDefs>
@@ -334,7 +334,7 @@
         <spirit:wire>
           <spirit:direction>in</spirit:direction>
           <spirit:vector>
-            <spirit:left spirit:format="long">3</spirit:left>
+            <spirit:left spirit:format="long">7</spirit:left>
             <spirit:right spirit:format="long">0</spirit:right>
           </spirit:vector>
           <spirit:wireTypeDefs>
@@ -544,7 +544,7 @@
       <spirit:file>
         <spirit:name>AxiLiteReadDifferentConstants.v</spirit:name>
         <spirit:fileType>verilogSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_ebaa971b</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_763bbb6c</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
     <spirit:fileSet>
@@ -582,8 +582,8 @@
       </xilinx:taxonomies>
       <xilinx:displayName>AxiLiteReadDifferentConstants_v1_0</xilinx:displayName>
       <xilinx:definitionSource>package_project</xilinx:definitionSource>
-      <xilinx:coreRevision>2</xilinx:coreRevision>
-      <xilinx:coreCreationDateTime>2018-01-01T17:12:38Z</xilinx:coreCreationDateTime>
+      <xilinx:coreRevision>3</xilinx:coreRevision>
+      <xilinx:coreCreationDateTime>2018-01-01T19:39:37Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="nopcore"/>
         <xilinx:tag xilinx:name="user.org:user:AxiLiteReadDifferentConstants:1.0_ARCHIVE_LOCATION">/home/kevin/hfuzz/pynq/chisel/ip/axi_lite_read_different</xilinx:tag>
@@ -593,8 +593,8 @@
       <xilinx:xilinxVersion>2017.3</xilinx:xilinxVersion>
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="069d29bd"/>
       <xilinx:checksum xilinx:scope="memoryMaps" xilinx:value="35ccb21f"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="744f8d80"/>
-      <xilinx:checksum xilinx:scope="ports" xilinx:value="60c5b3c0"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="6fdedc50"/>
+      <xilinx:checksum xilinx:scope="ports" xilinx:value="215851c6"/>
       <xilinx:checksum xilinx:scope="parameters" xilinx:value="2e547ee8"/>
     </xilinx:packagingInfo>
   </spirit:vendorExtensions>
