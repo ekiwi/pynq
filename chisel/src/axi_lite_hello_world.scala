@@ -34,6 +34,12 @@ class AxiLiteFollower extends Bundle {
 // This is the simplest AxiLite Follower I could think of.
 // It does not accept writes and always returns a single constant, no matter what
 // address is read from.
+//
+// Test from `ipython3` like this:
+// ```
+// > "0x{:2x}".format(ov.AxiLiteReadOneConstant_0.read(0))
+// -> 0x12345678
+// ```
 class AxiLiteReadOneConstant extends Module {
 	val io = IO(new AxiLiteFollower)
 
