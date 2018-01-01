@@ -5,8 +5,8 @@ import chisel3.util._
 
 class AxiLiteFollower extends Bundle {
 	val data_bits = 32
-	val address_bits = 4
-	val words = (1 << address_bits)
+	val address_bits = 8
+	val words = (1 << (address_bits - 2))
 	// TODO: maybe use ReadyValid interface from stdlib
 	// read address interface
 	val araddr  = Input(UInt(address_bits.W))
@@ -81,9 +81,12 @@ class AxiLiteReadDifferentConstants extends Module {
 	}
 
 	// read
-	val read_address = RegInit(0.U(32.W))
-	when(io.arready && io.arvalid) { read_address := io.araddr }
+	// the two least significant address bits are ignored
+	// since all accesses will be 32bit word aligned
+	val read_address = RegInit(0.U((io.address_bits - 2).W))
+	when(io.arready && io.arvalid) { read_address := io.araddr(io.address_bits-1, 2) }
 	io.arready := read_state === sWaitForAddress
+	// TODO: ignore lower two bits!
 	io.rdata := MuxLookup(read_address, default.U, data.zipWithIndex.map{ case(d, ii) => ii.U -> d.U })
 	io.rresp := OK
 	io.rvalid := read_state === sSendData
@@ -107,7 +110,7 @@ class AxiLiteLoopBack extends Module {
 	val OK = 0.U
 
 	// loopback register
-	val loopback = RegInit(0.U(32.W))
+	val loopback = RegInit(0x1993.U(32.W))
 
 	// read state
 	val sWaitForAddress :: sSendData :: Nil = Enum(2)
@@ -118,8 +121,10 @@ class AxiLiteLoopBack extends Module {
 	}
 
 	// read
-	val read_address = RegInit(0.U(32.W))
-	when(io.arready && io.arvalid) { read_address := io.araddr }
+	// the two least significant address bits are ignored
+	// since all accesses will be 32bit word aligned
+	val read_address = RegInit(0.U((io.address_bits - 2).W))
+	when(io.arready && io.arvalid) { read_address := io.araddr(io.address_bits-1, 2) }
 	io.arready := read_state === sWaitForAddress
 
 	io.rdata := Mux(read_address === 0.U, loopback, default.U)
@@ -136,8 +141,10 @@ class AxiLiteLoopBack extends Module {
 	}
 
 	// write
-	val write_address = RegInit(0.U(32.W))
-	when(io.awready && io.awvalid) { write_address := io.araddr }
+	// the two least significant address bits are ignored
+	// since all accesses will be 32bit word aligned
+	val write_address = RegInit(0.U((io.address_bits - 2).W))
+	when(io.awready && io.awvalid) { write_address := io.araddr(io.address_bits-1, 2) }
 	io.awready := write_state === sWaitForWAddress
 
 	when(io.wready && io.wvalid && write_address === 0.U) { loopback := io.wdata }
