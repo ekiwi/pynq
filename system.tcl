@@ -48,7 +48,7 @@ if { $list_projs eq "" } {
    set_property BOARD_PART digilentinc.com:arty-z7-20:part0:1.0 [current_project]
 }
 
-set_property  ip_repo_paths  . [current_project]
+set_property  ip_repo_paths  chisel/ip [current_project]
 update_ip_catalog
 
 # CHANGE DESIGN NAME HERE
