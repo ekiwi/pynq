@@ -63,6 +63,15 @@ class AxiLiteReadOneConstant extends Module {
 
 // This extends the above example to provide a different constant for
 // each address.
+//
+// Test from `ipython3` like this:
+// ```
+// > "0x{:2x}".format(ov.AxiLiteReadDifferentConstants_0.read(0 * 4))
+// -> 0x11111111
+// > "0x{:2x}".format(ov.AxiLiteReadDifferentConstants_0.read(1 * 4))
+// -> 0x2222222
+// [...]
+// ```
 class AxiLiteReadDifferentConstants extends Module {
 	val io = IO(new AxiLiteFollower)
 
@@ -102,6 +111,14 @@ class AxiLiteReadDifferentConstants extends Module {
 
 // This provides a loop back register that can be read and written at
 // address zero.
+//
+// Test from `ipython3` like this:
+// ```
+// > "0x{:2x}".format(ov.AxiLiteLoopBack_0.read(0))
+// -> 0x1993
+// > ov.AxiLiteLoopBack_0.write(0, 1234)
+// > ov.AxiLiteLoopBack_0.read(0)
+// ```
 class AxiLiteLoopBack extends Module {
 	val io = IO(new AxiLiteFollower)
 
@@ -144,7 +161,7 @@ class AxiLiteLoopBack extends Module {
 	// the two least significant address bits are ignored
 	// since all accesses will be 32bit word aligned
 	val write_address = RegInit(0.U((io.address_bits - 2).W))
-	when(io.awready && io.awvalid) { write_address := io.araddr(io.address_bits-1, 2) }
+	when(io.awready && io.awvalid) { write_address := io.awaddr(io.address_bits-1, 2) }
 	io.awready := write_state === sWaitForWAddress
 
 	when(io.wready && io.wvalid && write_address === 0.U) { loopback := io.wdata }
