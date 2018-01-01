@@ -31,11 +31,6 @@ class AxisQueue(val depth: Int, val width: Int) extends Module {
 	io.m_axis_tlast := q.io.out(width+bit_count)
 }
 
-object AxisQueueGenerator extends App {
-	chisel3.Driver.execute(args, () => new AxisQueue(64, 64))
-}
-
-
 class AxisLatch(val depth: Int, val width: Int) extends Module {
 	val bit_count = (width + 7) / 8
 	val io = IO(new Bundle {

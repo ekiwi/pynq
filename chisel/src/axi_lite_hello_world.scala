@@ -141,9 +141,3 @@ class AxiLiteLoopBack extends Module {
 	io.bresp := OK // this is sort of a lie
 
 }
-
-object AxiLiteHelloWorldGenerator extends App {
-	chisel3.Driver.execute(args, () => new AxiLiteReadOneConstant)
-	chisel3.Driver.execute(args, () => new AxiLiteReadDifferentConstants)
-	chisel3.Driver.execute(args, () => new AxiLiteLoopBack)
-}
