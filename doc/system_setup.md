@@ -158,3 +158,10 @@ To test whether your `Rust` installation can cross compile our code:
 2. build the application: `> cargo build --target=armv7-unknown-linux-gnueabihf`
 3. make a release build: `> cargo build --target=armv7-unknown-linux-gnueabihf --release`
 4. if there are no error, you are ready to test the application on the FPGA
+
+## Chisel Bootcamp Jupyter Notebook
+
+In order to experiment with and learn `Chisel` without an FPGA at hand,
+you can checkout the `Jupyter` notebooks that were created by folks at
+Berkeley as interactive teaching material.
+Just follow [their installation guide](https://github.com/ucb-bar/generator-bootcamp#local-installation---maclinux).
