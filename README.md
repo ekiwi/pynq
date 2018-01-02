@@ -1,4 +1,13 @@
-# pynq
+# PYNQ with Chisel and Rust
+
+This repository contains some examples on how Chisel and Rust can be
+used to create custom peripherals on the FPGA and interface them from
+the ARM core of the Zynq device.
+
+The documentation helps you [setup your system](doc/system_setup.md).
+
+
+## Test Log
 
 * successfully tested accessing the rgb leds from the `Overlay` on `2017-11-01` using `Vivado 2017.2`:
 
